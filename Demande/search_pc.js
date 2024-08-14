@@ -1,4 +1,5 @@
 class SearchPc{
+        //class for searching in Computer table
     constructor(chatbox) {
         this.chatbox = chatbox;
     }

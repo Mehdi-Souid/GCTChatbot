@@ -1,4 +1,5 @@
 class ConfigurationChoice {
+    //class for configuration
     constructor(chatbox, chatInput) {
         this.args = {
             chatbox: chatbox,

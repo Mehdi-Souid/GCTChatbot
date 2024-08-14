@@ -1,4 +1,5 @@
 class InteractiveChatbox {
+    //class for control appearnce of chat
     constructor(a, b, c) {
         this.args = {
             button: a,

@@ -1,3 +1,4 @@
+//main class app
 document.addEventListener("DOMContentLoaded", () => {
     const chatButton = document.querySelector('.ButtonOpenAndClose');
     const chatContent = document.querySelector('.chatbox__support');

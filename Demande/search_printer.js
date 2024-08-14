@@ -1,4 +1,5 @@
 class SearchPrinter{
+        //class for searching in Printer table
     constructor(chatbox) {
         this.chatbox = chatbox;
     }

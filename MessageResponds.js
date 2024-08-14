@@ -1,4 +1,5 @@
 class MessageRespond {
+    //clas for adding a message
     constructor(chatInput, chatbox) {
         this.args = {
             chatInput: chatInput,

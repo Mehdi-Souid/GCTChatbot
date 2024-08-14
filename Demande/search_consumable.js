@@ -1,4 +1,5 @@
 class SearchConsumable {
+    //class for searching in Consumable table
     constructor(chatbox) {
         this.chatbox = chatbox;
     }

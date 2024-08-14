@@ -1,4 +1,5 @@
 class SearchSwitcher{
+        //class for searching in Switcher table
     constructor(chatbox) {
         this.chatbox = chatbox;
     }

@@ -1,22 +1,28 @@
 class AssistanceChoice {
+    //class for assistance
     constructor(chatbox, chatInput, returnButton) {
         this.args = {
             chatbox: chatbox,
             chatInput: chatInput,
             returnButton: returnButton
         };
-        this.history = []; // navigation history
         this.initialize();
     }
 
     initialize() {
         const { returnButton } = this.args;
-        
+
+        // Add an event listener to the return button to refresh the page
         if (returnButton && typeof returnButton.addEventListener === 'function') {
-            returnButton.addEventListener('click', () => this.returnToPreviousLevel());
+            returnButton.addEventListener('click', () => this.refreshPage());
         } else {
-            console.log('Invalid returnButton element or missing addEventListener function');
+            console.error('Invalid returnButton element or missing addEventListener function');
         }
+    }
+
+    refreshPage() {
+        // Reload the page to start over
+        window.location.reload();
     }
 
     addChoices() {
@@ -25,7 +31,7 @@ class AssistanceChoice {
         const createBotListe = (message, classname) => {
             const chatliste = document.createElement("li");
             chatliste.classList.add("chat", classname);
-            let chatCont = classname === "respond" ? `<div class="messaget message_bot">${message}</div>` : `<div class="messaget message_bot">${message}</div>`;
+            let chatCont = `<div class="messaget message_bot">${message}</div>`;
             chatliste.innerHTML = chatCont;
             return chatliste;
         };
@@ -44,9 +50,6 @@ class AssistanceChoice {
         document.getElementById('Determine_ip').addEventListener('click', () => this.handleDetermineIP());
         document.getElementById('raccourci').addEventListener('click', () => this.handleRaccourci());
         document.getElementById('Dossier_partage').addEventListener('click', () => this.handleDossierPartage());
-
-        // Save history 
-        this.history.push('assistance');
     }
 
     handleDetermineIP() {

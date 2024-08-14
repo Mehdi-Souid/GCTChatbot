@@ -1,18 +1,39 @@
 class AccesChoice {
-    constructor(chatbox, chatInput) {
+    //class for getting access
+    constructor(buttons, chatbox, chatInput, btnreturn, chatsendbtn) {
         this.args = {
+            buttons: buttons,
             chatbox: chatbox,
-            chatInput: chatInput
+            chatInput: chatInput,
+            btnreturn: btnreturn,
+            chatsendbtn: chatsendbtn
         };
+        this.initialize();
+    }
+
+    initialize() {
+        const { btnreturn } = this.args;
+
+        // Add event listener to the return button to refresh the page
+        if (btnreturn && typeof btnreturn.addEventListener === 'function') {
+            btnreturn.addEventListener('click', () => this.refreshPage());  // Refresh page on click
+        } else {
+            console.error('Invalid btnreturn element or missing addEventListener function');
+        }
+    }
+
+    refreshPage() {
+        // Reload the page to start over
+        window.location.reload();
     }
 
     addChoices() {
-        const { chatbox, chatInput } = this.args;
+        const { chatbox } = this.args;
 
         const createBotListe = (message, classname) => {
             const chatliste = document.createElement("li");
             chatliste.classList.add("chat", classname);
-            let chatCont = classname === "respond" ? `<div class="messaget message_bot">${message}</div>` : `<div class="messaget message_bot">${message}</div>`;
+            let chatCont = `<div class="messaget message_bot">${message}</div>`;
             chatliste.innerHTML = chatCont;
             return chatliste;
         };
@@ -36,12 +57,12 @@ class AccesChoice {
     }
 
     handleChoice(choice) {
-        const { chatbox, chatInput } = this.args;
+        const { chatbox } = this.args;
 
         const createChatListe = (message, classname) => {
             const chatliste = document.createElement("li");
             chatliste.classList.add("chat", classname);
-            let chatCont = classname === "ask" ? `<div class="messaget message_client">${message}</div>` : `<div class="messaget message_client">${message}</div>`;
+            let chatCont = `<div class="messaget message_client">${message}</div>`;
             chatliste.innerHTML = chatCont;
             return chatliste;
         };
@@ -49,14 +70,14 @@ class AccesChoice {
         const createBotListe = (message, classname) => {
             const chatliste = document.createElement("li");
             chatliste.classList.add("chat", classname);
-            let chatCont = classname === "respond" ? `<div class="messaget message_bot">${message}</div>` : `<div class="messaget message_bot">${message}</div>`;
+            let chatCont = `<div class="messaget message_bot">${message}</div>`;
             chatliste.innerHTML = chatCont;
             return chatliste;
         };
 
         chatbox.appendChild(createChatListe(choice, "ask"));
         setTimeout(() => {
-            chatbox.appendChild(createBotListe('D\'accord, vous avez sélectionné ' + choice + '. Veuillez fournir plus de détails.', "respond"));
+            chatbox.appendChild(createBotListe(`D'accord, vous avez sélectionné ${choice}. Veuillez fournir plus de détails.`, "respond"));
         }, 600);
 
         const respondChoice = document.querySelector(".respond_choice");

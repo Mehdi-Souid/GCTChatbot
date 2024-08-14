@@ -1,4 +1,5 @@
 class DemandeChoice {
+    //class for option demande materials
     constructor(chatbox, chatInput, chatSendBtn) {
         this.args = {
             chatbox: chatbox,
