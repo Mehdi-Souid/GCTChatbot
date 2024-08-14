@@ -1,17 +1,17 @@
 class AutoRespond {
-    constructor(buttons, chatbox, chatInput, btnreturn) {
+    constructor(buttons, chatbox, chatInput, btnreturn,chatsendbtn) {
         this.args = {
             buttons: buttons,
             chatbox: chatbox,
             chatInput: chatInput,
-            btnreturn: btnreturn
+            btnreturn: btnreturn,
+            chatsendbtn:chatsendbtn
         };
         this.history = []; //  navigation history
         this.initialize();
     }
-
     initialize() {
-        const { buttons, chatbox, chatInput, btnreturn } = this.args;
+        const { buttons, chatbox, chatInput, btnreturn ,chatSendbtn} = this.args;
 
         const handleChat = (event) => {
             const buttonId = event.target.id;
@@ -40,7 +40,7 @@ class AutoRespond {
                 buttons.forEach(button => button.style.display = 'none');
                 const messageAdd = new MessageRespond(chatInput, chatbox);
                 messageAdd.addMessage(userMessage, botResponse);
-                const demande = new DemandeChoice(chatbox, chatInput);
+                const demande = new DemandeChoice(chatbox, chatInput,chatSendbtn);
                 demande.addChoices();
             } else if (buttonId === 'acces') {
                 userMessage = 'Demande Accès';
@@ -126,7 +126,7 @@ class AutoRespond {
         const { chatbox } = this.args;
         const messageAdd = new MessageRespond(this.args.chatInput, chatbox);
         messageAdd.addMessage('Demande matériel', '');
-        const demande = new DemandeChoice(chatbox, this.args.chatInput);
+        const demande = new DemandeChoice(chatbox, this.args.chatInput,chatsendbtn);
         demande.addChoices();
     }
 

@@ -35,12 +35,10 @@ class MessageChannel {
             chatbox.appendChild(userMessageElem);
             chatInput.value = ''; 
             
-            setTimeout(() => {
-                const botMessageElem = createBotListe('Generating...', "respond");
-                chatbox.appendChild(botMessageElem);
-            }, 600);
+          //  setTimeout(() => {
+                //const botMessageElem = createBotListe('Generating...', "respond");
+                //chatbox.appendChild(botMessageElem);
+            //}, 600);
         }
-
-        button.addEventListener("click", handleChat);
-    }
+}
 }
