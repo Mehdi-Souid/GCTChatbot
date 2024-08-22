@@ -14,16 +14,15 @@ class AccesChoice {
     initialize() {
         const { btnreturn } = this.args;
 
-        // Add event listener to the return button to refresh the page
+        
         if (btnreturn && typeof btnreturn.addEventListener === 'function') {
-            btnreturn.addEventListener('click', () => this.refreshPage());  // Refresh page on click
+            btnreturn.addEventListener('click', () => this.refreshPage()); 
         } else {
             console.error('Invalid btnreturn element or missing addEventListener function');
         }
     }
 
     refreshPage() {
-        // Reload the page to start over
         window.location.reload();
     }
 

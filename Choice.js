@@ -1,142 +1,87 @@
 class AutoRespond {
-    //class for main multiple choices
-    constructor(buttons, chatbox, chatInput, btnreturn, chatsendbtn) {
+    constructor(chatbox, chatInput, btnreturn, chatsendbtn) {
         this.args = {
-            buttons: buttons,
             chatbox: chatbox,
             chatInput: chatInput,
             btnreturn: btnreturn,
             chatsendbtn: chatsendbtn
         };
-        this.history = []; // Navigation history
         this.initialize();
     }
 
     initialize() {
-        const { buttons, chatbox, chatInput, btnreturn, chatsendbtn } = this.args;
+        this.addMainChoices();
 
-        const handleChat = (event) => {
-            const buttonId = event.target.id;
-            let userMessage;
-            let botResponse;
+        this.args.chatbox.addEventListener('click', this.handleChat.bind(this));
+    }
 
-            // Store the previous choice before changing
-            this.history.push(buttonId);
+    handleChat(event) {
+        const target = event.target;
+        const buttonId = target.id;
 
-            if (buttonId === 'reparer') {
+        let userMessage;
+        let choiceInstance;
+
+        switch (buttonId) {
+            case 'reparer':
                 userMessage = 'Réparation matériel';
-                buttons.forEach(button => button.style.display = 'none');
-                const messageAdd = new MessageRespond(chatInput, chatbox);
-                messageAdd.addMessage(userMessage, botResponse);
-                const repare = new ReparationChoice(chatbox, chatInput, btnreturn);
-                repare.addChoices();
-            } else if (buttonId === 'configuration') {
+                this.processChoice(userMessage);
+                const rep = new ReparationChoice(this.args.chatbox, this.args.chatInput, this.args.btnreturn,this.args.chatsendbtn);
+                break;
+            case 'configuration':
                 userMessage = 'Configuration logiciel';
-                buttons.forEach(button => button.style.display = 'none');
-                const messageAdd = new MessageRespond(chatInput, chatbox);
-                messageAdd.addMessage(userMessage, botResponse);
-                const config = new ConfigurationChoice(chatbox, chatInput, btnreturn);
-                config.addChoices();
-            } else if (buttonId === 'demande') {
+                this.processChoice(userMessage);
+                const config = new ConfigurationChoice(this.args.chatbox, this.args.chatInput, this.args.btnreturn,this.args.chatsendbtn);
+                break;
+            case 'demande':
                 userMessage = 'Demande matériel';
-                buttons.forEach(button => button.style.display = 'none');
-                const messageAdd = new MessageRespond(chatInput, chatbox);
-                messageAdd.addMessage(userMessage, botResponse);
-                const demande = new DemandeChoice(chatbox, chatInput, btnreturn, chatsendbtn);
-                demande.addChoices();
-            } else if (buttonId === 'acces') {
+                this.processChoice(userMessage);
+                choiceInstance = new DemandeChoice(this.args.chatbox, this.args.chatInput, this.args.btnreturn, this.args.chatsendbtn);
+                break;
+            case 'acces':
                 userMessage = 'Demande Accès';
-                buttons.forEach(button => button.style.display = 'none');
-                const messageAdd = new MessageRespond(chatInput, chatbox);
-                messageAdd.addMessage(userMessage, botResponse);
-                const acces = new AccesChoice(buttons, chatbox, chatInput, btnreturn, chatsendbtn);
-                acces.addChoices();
-            } else if (buttonId === 'asistance') {
+                this.processChoice(userMessage);
+                choiceInstance = new AccesChoice(this.args.chatbox, this.args.chatInput, this.args.btnreturn, this.args.chatsendbtn);
+                break;
+            case 'asistance':
                 userMessage = 'Assistance';
-                buttons.forEach(button => button.style.display = 'none');
-                const messageAdd = new MessageRespond(chatInput, chatbox);
-                messageAdd.addMessage(userMessage, botResponse);
-                const assist = new AssistanceChoice(chatbox, chatInput, btnreturn);
-                assist.addChoices();
-            }
-
-            buttons.forEach(button => button.style.display = 'none');
-        };
-
-        buttons.forEach(button => {
-            button.addEventListener("click", handleChat);
-        });
-
-        // Set up the return button 
-        if (btnreturn && typeof btnreturn.addEventListener === 'function') {
-            btnreturn.addEventListener('click', () => {
-                const previousLevel = this.history.pop();
-
-                if (previousLevel) {
-                    switch (previousLevel) {
-                        case 'reparer':
-                            this.addReparationChoices(btnreturn);
-                            break;
-                        case 'configuration':
-                            this.addConfigurationChoices(btnreturn);
-                            break;
-                        case 'demande':
-                            this.addDemandeChoices(btnreturn);
-                            break;
-                        case 'acces':
-                            this.addAccesChoices(btnreturn);
-                            break;
-                        case 'asistance':
-                            this.addAssistanceChoices(btnreturn);
-                            break;
-                        default:
-                            console.log('No previous level found');
-                    }
-                }
-            });
-        } else {
-            console.error('Invalid btnreturn element or missing addEventListener function');
+                this.processAssistanceChoice(userMessage);
+                return; 
+            default:
+                console.log('Unknown button clicked:', buttonId);
+                return; 
         }
+
+    }
+   
+    processAssistanceChoice(userMessage) {
+         this.hideMainChoices();
+        const messageAdd = new MessageRespond(this.args.chatInput, this.args.chatbox);
+        messageAdd.addMessage(userMessage);
+        const assist = new AssistanceChoice(this.args.chatbox, this.args.chatInput, this.args.btnreturn, this.args.chatsendbtn);
     }
 
-    // Methods to add choices with btnreturn as a parameter
-    addReparationChoices(btnreturn) {
+    processChoice(userMessage, choiceInstance) {
+        this.hideMainChoices();
+        const messageAdd = new MessageRespond(this.args.chatInput, this.args.chatbox);
+        messageAdd.addMessage(userMessage);
+    }
+
+    addMainChoices() {
         const { chatbox } = this.args;
-        const messageAdd = new MessageRespond(this.args.chatInput, chatbox);
-        messageAdd.addMessage('Réparation matériel', '');
-        const repare = new ReparationChoice(chatbox, this.args.chatInput, btnreturn);
-        repare.addChoices();
+        chatbox.innerHTML = `
+            <li class="respond_choice">
+                <button id="reparer" class="chat_send">Réparation matériel</button>
+                <button id="configuration" class="chat_send">Configuration logiciel</button>
+                <button id="demande" class="chat_send">Demande matériel</button>
+                <button id="acces" class="chat_send">Demande Accès</button>
+                <button id="asistance" class="chat_send">Assistance</button>
+            </li>
+        `;
     }
 
-    addConfigurationChoices(btnreturn) {
+    hideMainChoices() {
         const { chatbox } = this.args;
-        const messageAdd = new MessageRespond(this.args.chatInput, chatbox);
-        messageAdd.addMessage('Configuration logiciel', '');
-        const config = new ConfigurationChoice(chatbox, this.args.chatInput, btnreturn);
-        config.addChoices();
-    }
-
-    addDemandeChoices(btnreturn) {
-        const { chatbox, chatsendbtn } = this.args;
-        const messageAdd = new MessageRespond(this.args.chatInput, chatbox);
-        messageAdd.addMessage('Demande matériel', '');
-        const demande = new DemandeChoice(chatbox, this.args.chatInput, btnreturn, chatsendbtn);
-        demande.addChoices();
-    }
-
-    addAccesChoices(btnreturn) {
-        const { buttons, chatbox, chatInput, chatsendbtn } = this.args;
-        const messageAdd = new MessageRespond(this.args.chatInput, chatbox);
-        messageAdd.addMessage('Demande Accès', '');
-        const acces = new AccesChoice(buttons, chatbox, chatInput, btnreturn, chatsendbtn);
-        acces.addChoices();
-    }
-
-    addAssistanceChoices(btnreturn) {
-        const { buttons, chatbox, chatInput, chatsendbtn } = this.args;
-        const messageAdd = new MessageRespond(this.args.chatInput, chatbox);
-        messageAdd.addMessage('Assistance', '');
-        const assist = new AssistanceChoice(chatbox, chatInput, btnreturn);
-        assist.addChoices();
+        chatbox.innerHTML = ''; // Clear main choices
     }
 }

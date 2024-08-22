@@ -1,10 +1,11 @@
 class DemandeChoice {
     //class for option demande materials
-    constructor(chatbox, chatInput, chatSendBtn) {
+    constructor(chatbox, chatInput,btnreturn, chatSendBtn) {
         this.args = {
             chatbox: chatbox,
             chatInput: chatInput,
-            chatSendBtn: chatSendBtn
+            chatSendBtn: chatSendBtn,
+            btnreturn:btnreturn
         };
         this.selectedChoice = null; // Track the selected sub-choice
         this.searchConsumable = new SearchConsumable(chatbox);
