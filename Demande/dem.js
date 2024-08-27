@@ -1,24 +1,49 @@
 class DemandeChoice {
-    //class for option demande materials
-    constructor(chatbox, chatInput,btnreturn, chatSendBtn) {
+    constructor(chatbox, chatInput, btnreturn, chatSendBtn) {
         this.args = {
             chatbox: chatbox,
             chatInput: chatInput,
             chatSendBtn: chatSendBtn,
-            btnreturn:btnreturn
+            btnreturn: btnreturn,
         };
+        this.currentState = 'main'; // Track the current state
         this.selectedChoice = null; // Track the selected sub-choice
         this.searchConsumable = new SearchConsumable(chatbox);
-        this.searchPc = new SearchPc(chatbox);
-        this.searchSwitcher = new SearchSwitcher(chatbox);
-        this.searchPrinter = new SearchPrinter(chatbox);
-        // Disable the chat input field initially
         this.args.chatInput.disabled = true;
+        this.initialize();   
+    }
 
+    initialize() {
+        this.addChoices(); 
+        this.setupReturnButtonListener();
+    }
+
+    setupReturnButtonListener() {
+        const { btnreturn } = this.args;
+
+        btnreturn.removeEventListener('click', this.handleReturnButton.bind(this));
+        
+        btnreturn.addEventListener('click', () => this.handleReturnButton());
+    }
+
+    handleReturnButton() {
+        const { chatbox } = this.args;
+        
+        if (this.currentState === 'sub') {
+            this.currentState = 'main'; // Switch to main state
+            this.addChoices(); 
+        } else {
+            chatbox.innerHTML = ''; 
+
+            const autoRespond = new AutoRespond(this.args.chatbox, this.args.chatInput, this.args.btnreturn, this.args.chatSendBtn);
+        }
+
+        this.setupReturnButtonListener();
     }
 
     addChoices() {
         const { chatbox } = this.args;
+        chatbox.innerHTML = '';
 
         const createBotListe = (message, classname) => {
             const chatliste = document.createElement("li");
@@ -94,10 +119,12 @@ class DemandeChoice {
 
         const initialChoice = document.querySelector(".respond_choice");
         if (initialChoice) initialChoice.style.display = 'none';
+
+        this.currentState = 'sub'; // Switch to sub state
     }
 
     handleSubChoice(choice) {
-        const { chatbox, chatInput } = this.args;
+        const { chatbox, chatInput, chatSendBtn } = this.args;
 
         const createChatListe = (message, classname) => {
             const chatliste = document.createElement("li");
@@ -106,42 +133,101 @@ class DemandeChoice {
             chatliste.innerHTML = chatCont;
             return chatliste;
         };
-        chatbox.appendChild(createChatListe(choice, "ask"));
 
-        // Store the selected sub-choice for later use
+        chatbox.appendChild(createChatListe(choice, "ask"));
         this.selectedChoice = choice;
 
-        chatbox.appendChild(this.searchConsumable.createBotListe('Veuillez entrer le nom du matériel dans le champ de saisie et cliquer sur envoyer.', "respond"));
-chatInput.disabled = false; // Enable the chat input field
+        if (choice === 'Clavier' || choice === 'Souris' || choice === 'Cartouches imprimantes') {
+            // For Consumables, ask for the specific material and search for its existence
+            chatbox.appendChild(this.searchConsumable.createBotListe('Veuillez entrer le nom du consommable dans le champ de saisie et cliquer sur envoyer.', "respond"));
+            chatInput.disabled = false;
 
-const subChoiceBtns = document.querySelector(".responds");
-if (subChoiceBtns) subChoiceBtns.style.display = 'none';
-
-chatSendBtn.addEventListener('click', () => {
-    const materialName = chatInput.value.trim();
-    if (materialName) {
-        switch (this.selectedChoice) {
-            case 'Souris':
-            case 'Cartouches imprimantes':
-            case 'Clavier':
-                this.searchConsumable.handleChatSendClick(materialName, this.selectedChoice);
-                break;
-            case 'Ordinateur':
-                this.searchPc.handleChatSendClick(materialName, this.selectedChoice);
-                break;
-            case 'Imprimante':
-                this.searchPrinter.handleChatSendClick(materialName, this.selectedChoice);
-                break;
-            case 'Switcher':
-                this.searchSwitcher.handleChatSendClick(materialName, this.selectedChoice);
-                break;
+            chatSendBtn.addEventListener('click', () => {
+                const materialName = chatInput.value.trim();
+                if (materialName) {
+                    this.searchConsumable.handleChatSendClick(materialName, this.selectedChoice, this.confirmationCallback.bind(this));
+                    chatInput.value = '';
+                    chatInput.disabled = true;
+                } else {
+                    this.searchConsumable.createBotListe('Veuillez entrer le nom du consommable dans le champ de saisie.', "respond");
+                }
+            });
+        } else {
+            // For other types (PC, Printer, Switcher), directly ask for confirmation
+            this.confirmationCallback(this.selectedChoice);
         }
-        chatInput.value = '';
-        chatInput.disabled = true;
-    } else {
-        this.searchConsumable.createBotListe('Veuillez entrer le nom du matériel dans le champ de saisie.', "respond");
-    }
-});
 
+        const subChoiceBtns = document.querySelector(".responds");
+        if (subChoiceBtns) subChoiceBtns.style.display = 'none';
+    }
+
+    confirmationCallback(materialName) {
+        const { chatbox } = this.args;
+
+        const createBotListe = (message, classname) => {
+            const chatliste = document.createElement("li");
+            chatliste.classList.add("chat", classname);
+            let chatCont = `<div class="messaget message_bot">${message}</div>`;
+            chatliste.innerHTML = chatCont;
+            return chatliste;
+        };
+
+        chatbox.appendChild(createBotListe(`Vous avez confirmé: ${materialName}. Êtes-vous sûr de vouloir continuer ?`, "respond"));
+
+        const confirmationButtons = document.createElement("li");
+        confirmationButtons.classList.add("respond_choice");
+        confirmationButtons.innerHTML = `
+            <button id="confirm" class="chat_send">Confirmer</button>
+            <button id="cancel" class="chat_send">Annuler</button>
+        `;
+        chatbox.appendChild(confirmationButtons);
+
+        document.getElementById('confirm').addEventListener('click', () => this.createTicket(materialName));
+        document.getElementById('cancel').addEventListener('click', () => this.addChoices());
+    }
+
+    createTicket(materialName) {
+        const { chatbox } = this.args;
+    
+    
+        // Display ticket creation message
+        const createBotListe = (message, classname) => {
+            const chatliste = document.createElement("li");
+            chatliste.classList.add("chat", classname);
+            chatliste.innerHTML = `<div class="messaget message_bot">${message}</div>`;
+            return chatliste;
+        };
+    
+        chatbox.appendChild(createBotListe(`Votre ticket pour ${materialName} est en cours de création. Veuillez patienter.`, "respond"));
+    
+        // Prepare ticket data
+        const ticketData = {
+            username: 'glpi', // Replace with actual username from your log
+            password: 'glpi', // Replace with actual password from your log
+            ticket_name: `Demande de materiel`, 
+            ticket_description: `Demande concernant ${materialName}`,
+            type: 2,  // ID for requester
+            category: 1  // Default category ID
+        };
+        setTimeout(() => {
+            // Code to execute after 5 seconds
+        
+        
+        // Send ticket data to server
+        fetch('create_ticket.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams(ticketData)
+        })
+        .then(response => response.text())
+        .then(data => {
+            chatbox.innerHTML = data; 
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }, 5000);
     }
 }

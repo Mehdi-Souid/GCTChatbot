@@ -1,5 +1,4 @@
 class SearchConsumable {
-    //class for searching in Consumable table
     constructor(chatbox) {
         this.chatbox = chatbox;
     }
@@ -33,15 +32,16 @@ class SearchConsumable {
         .then(response => response.json());
     }
 
-    handleChatSendClick(materialName, selectedChoice) {
+    handleChatSendClick(materialName, selectedChoice, confirmationCallback) {
         this.chatbox.appendChild(this.createChatListe(`Choix : ${materialName}`, "ask"));
 
         this.searchMaterial(materialName)
             .then(data => {
                 if (data.available) {
                     this.chatbox.appendChild(this.createBotListe('Le matériel demandé est disponible.', "respond"));
+                    confirmationCallback(materialName);  // Ask for confirmation
                 } else {
-                    this.chatbox.appendChild(this.createBotListe('Le matériel demandé n\'est pas disponible.', "respond"));
+                    this.chatbox.appendChild(this.createBotListe('Le matériel demandé n\'est pas disponible. Retournez au menu principal.', "respond"));
                 }
             })
             .catch(error => {

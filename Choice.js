@@ -10,6 +10,7 @@ class AutoRespond {
     }
 
     initialize() {
+
         this.addMainChoices();
 
         this.args.chatbox.addEventListener('click', this.handleChat.bind(this));
@@ -36,12 +37,12 @@ class AutoRespond {
             case 'demande':
                 userMessage = 'Demande matériel';
                 this.processChoice(userMessage);
-                choiceInstance = new DemandeChoice(this.args.chatbox, this.args.chatInput, this.args.btnreturn, this.args.chatsendbtn);
+                const demande = new DemandeChoice(this.args.chatbox, this.args.chatInput, this.args.btnreturn, this.args.chatsendbtn);
                 break;
             case 'acces':
                 userMessage = 'Demande Accès';
                 this.processChoice(userMessage);
-                choiceInstance = new AccesChoice(this.args.chatbox, this.args.chatInput, this.args.btnreturn, this.args.chatsendbtn);
+                const access = new AccessChoice(this.args.chatbox, this.args.chatInput, this.args.btnreturn, this.args.chatsendbtn);
                 break;
             case 'asistance':
                 userMessage = 'Assistance';

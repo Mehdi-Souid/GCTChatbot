@@ -203,7 +203,6 @@ handleChoice(choice) {
     createTicket(issueType, description) {
         const { chatbox,chatInput } = this.args;
 
-        chatbox.innerHTML = '';
         chatInput.value = ''; 
 
         const createBotListe = (message, classname) => {
@@ -220,9 +219,14 @@ handleChoice(choice) {
             username: 'glpi', 
             password: 'glpi', 
             ticket_name: `Probleme de ${issueType}`, 
-            ticket_description: `Addresse ip de machine ${description} `
+            ticket_description: `Addresse ip de machine ${description} `,
+            type: 1,  // ID for incident
+            category: 1  // Default category ID
         };
-
+        setTimeout(() => {
+            // Code to execute after 5 seconds
+        
+        
         // Send ticket data to server
         fetch('create_ticket.php', {
             method: 'POST',
@@ -233,21 +237,12 @@ handleChoice(choice) {
         })
         .then(response => response.text())
         .then(data => {
-            chatbox.innerHTML = '';
             chatbox.innerHTML = data; 
         })
         .catch(error => {
             console.error('Error:', error);
         });
 
-        const returnButton = document.createElement("button");
-        returnButton.classList.add("chat_send");
-        returnButton.innerText = "Retourner aux choix principaux";
-        returnButton.addEventListener('click', () => {
-            chatbox.innerHTML = '';
-            const autoRespond = new AutoRespond(this.args.chatbox, this.args.chatInput, this.args.btnreturn, this.args.chatsendbtn);
-        });
-
-        chatbox.appendChild(returnButton);
+    }, 5000);
     }
 }

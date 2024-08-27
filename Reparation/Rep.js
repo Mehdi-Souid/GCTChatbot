@@ -176,7 +176,6 @@ class ReparationChoice {
     createTicket(issueType) {
         const { chatbox } = this.args;
     
-        chatbox.innerHTML = '';
     
         // Display ticket creation message
         const createBotListe = (message, classname) => {
@@ -192,10 +191,15 @@ class ReparationChoice {
         const ticketData = {
             username: 'glpi', 
             password: 'glpi', 
-            ticket_name: `Repair Request for ${issueType}`, 
-            ticket_description: `Description for ${issueType} issue` 
+            ticket_name: `Reparation pour ${issueType}`, 
+            ticket_description: `Description pour probleme de ${issueType}` ,
+            type: 1,  // ID for incident
+            category: 1  // Default category ID
         };
-    
+        setTimeout(() => {
+            // Code to execute after 5 seconds
+        
+        
         // Send ticket data to server
         fetch('create_ticket.php', {
             method: 'POST',
@@ -212,17 +216,7 @@ class ReparationChoice {
         .catch(error => {
             console.error('Error:', error);
         });
-    
-        // Provide option to return to main choices
-        const returnButton = document.createElement("button");
-        returnButton.classList.add("chat_send");
-        returnButton.innerText = "Retourner aux choix principaux";
-        returnButton.addEventListener('click', () => {
-            chatbox.innerHTML = '';
-            const autoRespond = new AutoRespond(this.args.chatbox, this.args.chatInput, this.args.btnreturn, this.args.chatsendbtn);
-        });
-    
-        chatbox.appendChild(returnButton);
+    }, 5000);
     }
     
 }

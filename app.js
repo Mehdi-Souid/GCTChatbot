@@ -16,11 +16,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const autoRespond = new AutoRespond(chatList, chatInput, returnButton, sendBtn);
 
-    // Handle the return button click
-    //returnButton.addEventListener('click', () => {
-      //  if (stateStack.length > 0) {
-        //    const previousState = stateStack.pop(); // Get and remove last state
-          //  autoRespond.restoreState(previousState); // Restore to the previous state
-        //}
-    //});
 });
