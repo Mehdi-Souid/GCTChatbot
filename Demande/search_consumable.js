@@ -37,9 +37,15 @@ class SearchConsumable {
 
         this.searchMaterial(materialName)
             .then(data => {
-                if (data.available) {
+                if (data.error) {
+                    if (data.error === 'You must login first.') {
+                        this.chatbox.appendChild(this.createBotListe('Vous devez d\'abord vous connecter.', "respond"));
+                    } else {
+                        this.chatbox.appendChild(this.createBotListe('Une erreur est survenue lors de la vérification de la disponibilité.', "respond"));
+                    }
+                } else if (data.available) {
                     this.chatbox.appendChild(this.createBotListe('Le matériel demandé est disponible.', "respond"));
-                    confirmationCallback(materialName);  // Ask for confirmation
+                    confirmationCallback(materialName); 
                 } else {
                     this.chatbox.appendChild(this.createBotListe('Le matériel demandé n\'est pas disponible. Retournez au menu principal.', "respond"));
                 }

@@ -189,7 +189,8 @@ class DemandeChoice {
     createTicket(materialName) {
         const { chatbox } = this.args;
     
-    
+        chatbox.innerHTML="";
+
         // Display ticket creation message
         const createBotListe = (message, classname) => {
             const chatliste = document.createElement("li");
@@ -223,11 +224,12 @@ class DemandeChoice {
         })
         .then(response => response.text())
         .then(data => {
+            chatbox.innerHTML="";
             chatbox.innerHTML = data; 
         })
         .catch(error => {
             console.error('Error:', error);
         });
-    }, 5000);
+    }, 3000);
     }
 }

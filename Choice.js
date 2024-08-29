@@ -10,6 +10,11 @@ class AutoRespond {
     }
 
     initialize() {
+        const { chatbox,chatInput,btnreturn,chatsendbtn } = this.args;
+        chatsendbtn.style.display = 'block';
+        btnreturn.style.display = 'block';
+        chatInput.disabled = false;
+        
 
         this.addMainChoices();
 

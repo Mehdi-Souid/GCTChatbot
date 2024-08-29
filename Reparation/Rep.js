@@ -176,7 +176,7 @@ class ReparationChoice {
     createTicket(issueType) {
         const { chatbox } = this.args;
     
-    
+        chatbox.innerHTML="";
         // Display ticket creation message
         const createBotListe = (message, classname) => {
             const chatliste = document.createElement("li");
@@ -189,8 +189,7 @@ class ReparationChoice {
     
         // Prepare ticket data
         const ticketData = {
-            username: 'glpi', 
-            password: 'glpi', 
+            //password and username(old)
             ticket_name: `Reparation pour ${issueType}`, 
             ticket_description: `Description pour probleme de ${issueType}` ,
             type: 1,  // ID for incident
@@ -216,7 +215,7 @@ class ReparationChoice {
         .catch(error => {
             console.error('Error:', error);
         });
-    }, 5000);
+    }, 3000);
     }
     
 }

@@ -43,8 +43,6 @@ class ConfigurationChoice {
 
         this.setupReturnButtonListener();
 
-        chatInput.disabled = true;
-        chatsendbtn.style.display = 'none';
     }
 
     addChoices(state) {
@@ -202,7 +200,7 @@ handleChoice(choice) {
 
     createTicket(issueType, description) {
         const { chatbox,chatInput } = this.args;
-
+        chatbox.innerHTML="";
         chatInput.value = ''; 
 
         const createBotListe = (message, classname) => {
@@ -216,15 +214,14 @@ handleChoice(choice) {
 
         // Prepare ticket data
         const ticketData = {
-            username: 'glpi', 
-            password: 'glpi', 
+            //password and username(old) 
             ticket_name: `Probleme de ${issueType}`, 
             ticket_description: `Addresse ip de machine ${description} `,
             type: 1,  // ID for incident
             category: 1  // Default category ID
         };
         setTimeout(() => {
-            // Code to execute after 5 seconds
+            // Code to execute after 3 seconds
         
         
         // Send ticket data to server
@@ -237,12 +234,14 @@ handleChoice(choice) {
         })
         .then(response => response.text())
         .then(data => {
+            chatbox.innerHTML="";
             chatbox.innerHTML = data; 
+
         })
         .catch(error => {
             console.error('Error:', error);
         });
 
-    }, 5000);
+    }, 3000);
     }
 }

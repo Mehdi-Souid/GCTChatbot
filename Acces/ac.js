@@ -256,12 +256,10 @@ class AccessChoice {
 
         let description = 'Demande d\'accès:\n';
 
-        // Build the ticket description based on the inputs stored in the table
         for (let key in this.inputTable) {
             description += `${key}: ${this.inputTable[key]}\n`;
         }
 
-        // Show the ticket description in the chat
         const createBotListe = (message, classname) => {
             const chatliste = document.createElement("li");
             chatliste.classList.add("chat", classname);
@@ -271,14 +269,13 @@ class AccessChoice {
 
         chatbox.appendChild(createBotListe('Résumé de votre demande:', "respond"));
         chatbox.appendChild(createBotListe(description, "respond"));
-        // Here you can call the createTicket function to proceed with ticket creation
         this.createTicket(description);
     }
 
     createTicket(description) {
         const { chatbox,title} = this.args;
-        
-        // Display a message that the ticket is being created
+        chatbox.innerHTML="";
+
         const createBotListe = (message, classname) => {
             const chatliste = document.createElement("li");
             chatliste.classList.add("chat", classname);
@@ -292,18 +289,14 @@ class AccessChoice {
     
         // Prepare ticket data
         const ticketData = {
-            username: 'glpi', 
-            password: 'glpi', 
+            //password and username (old)
             ticket_name: ticket_title,
             ticket_description: description,
             type: 1,  // ID for incident
             category: 1  // Default category ID
         };
         setTimeout(() => {
-            // Code to execute after 5 seconds
        
-        
-        // Send ticket data to the server using fetch
         fetch('create_ticket.php', {
             method: 'POST',
             headers: {
@@ -314,12 +307,13 @@ class AccessChoice {
         .then(response => response.text())
         .then(data => {
             // Clear the chatbox and display the server response
+            chatbox.innerHTML = '';
             chatbox.innerHTML = data; 
         })
         .catch(error => {
             console.error('Error:', error);
         });
-    }, 4000);
+    }, 3000);
     }
     
 }

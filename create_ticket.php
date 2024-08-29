@@ -1,21 +1,55 @@
 <?php
+session_start();
+
 $app_token = 'L8NOM1XLaMmhAnYdFJIJR6ImnekumcxgtQffFLkM';
 
-// Read the username from the log file
+$encryption_key = 'GCTChatbot'; 
+// Function to decrypt the data
+function decryptData($data, $key) {
+    $data = base64_decode($data);
+    list($encrypted_data, $iv) = explode('::', $data, 2); 
+    return openssl_decrypt($encrypted_data, 'AES-256-CBC', $key, 0, $iv);
+}
+
 $username_file = 'login_username.log';
-$username = trim(file_get_contents($username_file));
-$username = str_replace('Username: ', '', $username); // Remove the "Username: " prefix
-
-// Read the password from the log file
 $password_file = 'login_password.log';
-$password = trim(file_get_contents($password_file));
-$password = str_replace('Password: ', '', $password); // Remove the "Password: " prefix
 
-// Check if username or password files are empty
-if (empty($username) || empty($password)) {
-    echo "You must login first.";
+if (!file_exists($username_file) || !file_exists($password_file)) {
+    echo "Error: Username or password file does not exist.";
     exit();
 }
+
+$raw_username_content = file_get_contents($username_file);
+$raw_password_content = file_get_contents($password_file);
+
+$encrypted_username = trim($raw_username_content);
+$encrypted_username = str_replace('Username: ', '', $encrypted_username); // Remove the "Username: " prefix
+
+$encrypted_password = trim($raw_password_content);
+$encrypted_password = str_replace('Password: ', '', $encrypted_password); // Remove the "Password: " prefix
+
+if (empty($encrypted_username) || empty($encrypted_password)) {
+    echo "Vous devez d'abord vous connecter.";
+    exit();
+}
+
+// Decrypt the password and username
+$username = decryptData($encrypted_username, $encryption_key);
+$password = decryptData($encrypted_password, $encryption_key);
+
+// Check the timestamp of the last ticket creation
+if (isset($_SESSION['last_ticket_time'])) {
+    $last_ticket_time = $_SESSION['last_ticket_time'];
+    $current_time = time();
+
+    if (($current_time - $last_ticket_time) < 60) { // 60 seconds = 1 minute
+        echo "Veuillez attendre une minute avant de créer un autre ticket.";
+        exit();
+    }
+}
+
+// Set the current time as the last ticket creation time
+$_SESSION['last_ticket_time'] = time();
 
 $ticket_name = $_POST['ticket_name'];
 $ticket_description = $_POST['ticket_description'];
