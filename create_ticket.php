@@ -42,7 +42,7 @@ if (isset($_SESSION['last_ticket_time'])) {
     $last_ticket_time = $_SESSION['last_ticket_time'];
     $current_time = time();
 
-    if (($current_time - $last_ticket_time) < 60) { // 60 seconds = 1 minute
+    if (($current_time - $last_ticket_time) < 10) { // 60 seconds = 1 minute
         echo "Veuillez attendre une minute avant de créer un autre ticket.";
         exit();
     }

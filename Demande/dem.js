@@ -137,7 +137,7 @@ class DemandeChoice {
         chatbox.appendChild(createChatListe(choice, "ask"));
         this.selectedChoice = choice;
 
-        if (choice === 'Clavier' || choice === 'Souris' || choice === 'Cartouches imprimantes') {
+        if (choice === 'Cartouches imprimantes') {
             // For Consumables, ask for the specific material and search for its existence
             chatbox.appendChild(this.searchConsumable.createBotListe('Veuillez entrer le nom du consommable dans le champ de saisie et cliquer sur envoyer.', "respond"));
             chatInput.disabled = false;
