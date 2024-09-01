@@ -8,9 +8,13 @@ class DemandeChoice {
         };
         this.currentState = 'main'; // Track the current state
         this.selectedChoice = null; // Track the selected sub-choice
-        this.searchConsumable = new SearchConsumable(chatbox);
         this.args.chatInput.disabled = true;
         this.initialize();   
+        this.inputQueue = [];
+        this.inputTable = {};
+        this.description = '';
+        this.title = '';
+        this.inputHandler = this.createInputHandler(); // Store the handler reference
     }
 
     initialize() {
@@ -20,21 +24,28 @@ class DemandeChoice {
 
     setupReturnButtonListener() {
         const { btnreturn } = this.args;
-
         btnreturn.removeEventListener('click', this.handleReturnButton.bind(this));
-        
         btnreturn.addEventListener('click', () => this.handleReturnButton());
     }
 
     handleReturnButton() {
         const { chatbox } = this.args;
-        
         if (this.currentState === 'sub') {
             this.currentState = 'main'; // Switch to main state
-            this.addChoices(); 
-        } else {
-            chatbox.innerHTML = ''; 
 
+            // Remove existing event listeners
+            const equipmentBtn = document.getElementById('equipements');
+            const consumablesBtn = document.getElementById('consommables');
+            if (equipmentBtn) {
+                equipmentBtn.removeEventListener('click', () => this.handleMainChoice('Équipements'));
+            }
+            if (consumablesBtn) {
+                consumablesBtn.removeEventListener('click', () => this.handleMainChoice('Consommables'));
+            }
+
+            this.addChoices();
+        } else {
+            chatbox.innerHTML = '';
             const autoRespond = new AutoRespond(this.args.chatbox, this.args.chatInput, this.args.btnreturn, this.args.chatSendBtn);
         }
 
@@ -44,12 +55,12 @@ class DemandeChoice {
     addChoices() {
         const { chatbox } = this.args;
         chatbox.innerHTML = '';
+        this.description = '';
 
         const createBotListe = (message, classname) => {
             const chatliste = document.createElement("li");
             chatliste.classList.add("chat", classname);
-            let chatCont = `<div class="messaget message_bot">${message}</div>`;
-            chatliste.innerHTML = chatCont;
+            chatliste.innerHTML = `<div class="messaget message_bot">${message}</div>`;
             return chatliste;
         };
 
@@ -65,6 +76,8 @@ class DemandeChoice {
 
         document.getElementById('equipements').addEventListener('click', () => this.handleMainChoice('Équipements'));
         document.getElementById('consommables').addEventListener('click', () => this.handleMainChoice('Consommables'));
+
+        this.currentState = 'main'; // Switch to main state
     }
 
     handleMainChoice(choice) {
@@ -73,16 +86,14 @@ class DemandeChoice {
         const createChatListe = (message, classname) => {
             const chatliste = document.createElement("li");
             chatliste.classList.add("chat", classname);
-            let chatCont = `<div class="messaget message_client">${message}</div>`;
-            chatliste.innerHTML = chatCont;
+            chatliste.innerHTML = `<div class="messaget message_client">${message}</div>`;
             return chatliste;
         };
 
         const createBotListe = (message, classname) => {
             const chatliste = document.createElement("li");
             chatliste.classList.add("chat", classname);
-            let chatCont = `<div class="messaget message_bot">${message}</div>`;
-            chatliste.innerHTML = chatCont;
+            chatliste.innerHTML = `<div class="messaget message_bot">${message}</div>`;
             return chatliste;
         };
 
@@ -110,9 +121,9 @@ class DemandeChoice {
         respondChoice.innerHTML = subChoices;
         chatbox.appendChild(respondChoice);
 
-        document.getElementById('imprimante')?.addEventListener('click', () => this.handleSubChoice('Imprimante'));
-        document.getElementById('ordinateur')?.addEventListener('click', () => this.handleSubChoice('Ordinateur'));
-        document.getElementById('switcher')?.addEventListener('click', () => this.handleSubChoice('Switcher'));
+        document.getElementById('imprimante')?.addEventListener('click', () => this.handlePrinterChoice());
+        document.getElementById('ordinateur')?.addEventListener('click', () => this.handlePCChoice());
+        document.getElementById('switcher')?.addEventListener('click', () => this.handleSwitchChoice());
         document.getElementById('clavier')?.addEventListener('click', () => this.handleSubChoice('Clavier'));
         document.getElementById('souris')?.addEventListener('click', () => this.handleSubChoice('Souris'));
         document.getElementById('cartouches')?.addEventListener('click', () => this.handleSubChoice('Cartouches imprimantes'));
@@ -123,75 +134,49 @@ class DemandeChoice {
         this.currentState = 'sub'; // Switch to sub state
     }
 
-    handleSubChoice(choice) {
-        const { chatbox, chatInput, chatSendBtn } = this.args;
+    handlePCChoice() {
+        const { chatbox } = this.args;
+        this.description = '';
+        this.title='Ordinateur';
+        const MainChoice = document.querySelector(".responds");
+        if (MainChoice) MainChoice.style.display = 'none';
 
         const createChatListe = (message, classname) => {
             const chatliste = document.createElement("li");
             chatliste.classList.add("chat", classname);
-            let chatCont = `<div class="messaget message_client">${message}</div>`;
-            chatliste.innerHTML = chatCont;
+            chatliste.innerHTML = `<div class="messaget message_client">${message}</div>`;
             return chatliste;
         };
-
-        chatbox.appendChild(createChatListe(choice, "ask"));
-        this.selectedChoice = choice;
-
-        if (choice === 'Cartouches imprimantes') {
-            // For Consumables, ask for the specific material and search for its existence
-            chatbox.appendChild(this.searchConsumable.createBotListe('Veuillez entrer le nom du consommable dans le champ de saisie et cliquer sur envoyer.', "respond"));
-            chatInput.disabled = false;
-
-            chatSendBtn.addEventListener('click', () => {
-                const materialName = chatInput.value.trim();
-                if (materialName) {
-                    this.searchConsumable.handleChatSendClick(materialName, this.selectedChoice, this.confirmationCallback.bind(this));
-                    chatInput.value = '';
-                    chatInput.disabled = true;
-                } else {
-                    this.searchConsumable.createBotListe('Veuillez entrer le nom du consommable dans le champ de saisie.', "respond");
-                }
-            });
-        } else {
-            // For other types (PC, Printer, Switcher), directly ask for confirmation
-            this.confirmationCallback(this.selectedChoice);
-        }
-
-        const subChoiceBtns = document.querySelector(".responds");
-        if (subChoiceBtns) subChoiceBtns.style.display = 'none';
-    }
-
-    confirmationCallback(materialName) {
-        const { chatbox } = this.args;
 
         const createBotListe = (message, classname) => {
             const chatliste = document.createElement("li");
             chatliste.classList.add("chat", classname);
-            let chatCont = `<div class="messaget message_bot">${message}</div>`;
-            chatliste.innerHTML = chatCont;
+            chatliste.innerHTML = `<div class="messaget message_bot">${message}</div>`;
             return chatliste;
         };
 
-        chatbox.appendChild(createBotListe(`Vous avez confirmé: ${materialName}. Êtes-vous sûr de vouloir continuer ?`, "respond"));
-
-        const confirmationButtons = document.createElement("li");
-        confirmationButtons.classList.add("respond_choice");
-        confirmationButtons.innerHTML = `
-            <button id="confirm" class="chat_send">Confirmer</button>
-            <button id="cancel" class="chat_send">Annuler</button>
-        `;
-        chatbox.appendChild(confirmationButtons);
-
-        document.getElementById('confirm').addEventListener('click', () => this.createTicket(materialName));
-        document.getElementById('cancel').addEventListener('click', () => this.addChoices());
+        chatbox.appendChild(createChatListe('Ordinateur sélectionné', "ask"));
+        chatbox.appendChild(createBotListe('Merci de préciser le modèle de l\'ordinateur à remplacer ou indiquer s\'il s\'agit d\'une nouvelle affectation.', "respond"));
+        this.inputQueue = [
+            { prompt: 'Modèle de l\'ordinateur:', key: 'model_ordinateur', handler: this.handleInput.bind(this) }
+        ];
+        this.requestInput();
     }
 
-    createTicket(materialName) {
+    handlePrinterChoice() {
         const { chatbox } = this.args;
+        this.description = '';
+        this.title='Imprimante';
+        const MainChoice = document.querySelector(".responds");
+        if (MainChoice) MainChoice.style.display = 'none';
     
-        chatbox.innerHTML="";
-
-        // Display ticket creation message
+        const createChatListe = (message, classname) => {
+            const chatliste = document.createElement("li");
+            chatliste.classList.add("chat", classname);
+            chatliste.innerHTML = `<div class="messaget message_client">${message}</div>`;
+            return chatliste;
+        };
+    
         const createBotListe = (message, classname) => {
             const chatliste = document.createElement("li");
             chatliste.classList.add("chat", classname);
@@ -199,37 +184,248 @@ class DemandeChoice {
             return chatliste;
         };
     
-        chatbox.appendChild(createBotListe(`Votre ticket pour ${materialName} est en cours de création. Veuillez patienter.`, "respond"));
+        chatbox.appendChild(createChatListe('Imprimante sélectionnée', "ask"));
+        chatbox.appendChild(createBotListe('Merci de préciser le type (réseau ou bureautique).', "respond"));
+    
+        // Create and display the buttons for selecting the type of printer
+        const buttonContainer = document.createElement("li");
+        buttonContainer.classList.add("respond_sub");
+        buttonContainer.innerHTML = `
+            <button id="reseau" class="chat_send">Réseau</button>
+            <button id="bureautique" class="chat_send">Bureautique</button>
+        `;
+        chatbox.appendChild(buttonContainer);
+    
+        document.getElementById('reseau').addEventListener('click', () => this.handlePrinterType('réseau'));
+        document.getElementById('bureautique').addEventListener('click', () => this.handlePrinterType('bureautique'));
+    }
+    
+    handlePrinterType(type) {
+        const { chatbox } = this.args;
+        
+        // Clear the buttons and prompt for volume
+        const buttonContainer = document.querySelector(".respond_sub");
+        if (buttonContainer) buttonContainer.style.display = 'none';
+    
+        const createChatListe = (message, classname) => {
+            const chatliste = document.createElement("li");
+            chatliste.classList.add("chat", classname);
+            chatliste.innerHTML = `<div class="messaget message_client">${message}</div>`;
+            return chatliste;
+        };
+    
+        const createBotListe = (message, classname) => {
+            const chatliste = document.createElement("li");
+            chatliste.classList.add("chat", classname);
+            chatliste.innerHTML = `<div class="messaget message_bot">${message}</div>`;
+            return chatliste;
+        };
+    
+        chatbox.appendChild(createChatListe(`Type d'imprimante sélectionné: ${type}`, "ask"));
+        chatbox.appendChild(createBotListe('Merci de préciser le volume quotidien d\'impression.', "respond"));
+    
+        // Update the description and inputQueue
+        this.description += `Type d'imprimante: ${type}. `;
+        this.inputQueue = [
+            { prompt: 'Volume quotidien:', key: 'volume_impression', handler: this.handleInput.bind(this) }
+        ];
+        this.requestInput();
+    }
+    
+    handleSwitchChoice() {
+        const { chatbox } = this.args;
+        this.description = '';
+        this.title='Switcher';
+        const MainChoice = document.querySelector(".responds");
+        if (MainChoice) MainChoice.style.display = 'none';
+
+        const createChatListe = (message, classname) => {
+            const chatliste = document.createElement("li");
+            chatliste.classList.add("chat", classname);
+            chatliste.innerHTML = `<div class="messaget message_client">${message}</div>`;
+            return chatliste;
+        };
+
+        const createBotListe = (message, classname) => {
+            const chatliste = document.createElement("li");
+            chatliste.classList.add("chat", classname);
+            chatliste.innerHTML = `<div class="messaget message_bot">${message}</div>`;
+            return chatliste;
+        };
+
+        chatbox.appendChild(createChatListe('Switcher sélectionné', "ask"));
+        chatbox.appendChild(createBotListe('Merci de préciser le bureau où le switch sera connecté.', "respond"));
+        this.inputQueue = [
+            { prompt: 'Bureau:', key: 'bureau_switch', handler: this.handleInput.bind(this) }
+        ];
+        this.requestInput();
+    }
+
+    handleSubChoice(choice) {
+        const { chatbox, chatInput,btnreturn,chatSendBtn } = this.args;
+        this.description = '';
+    
+        // Disable chat input
+        chatInput.disabled = true;
+    
+        const initialChoice = document.querySelector(".responds");
+        if (initialChoice) initialChoice.style.display = 'none';
+    
+        const createChatListe = (message, classname) => {
+            const chatliste = document.createElement("li");
+            chatliste.classList.add("chat", classname);
+            chatliste.innerHTML = `<div class="messaget message_client">${message}</div>`;
+            return chatliste;
+        };
+    
+        const createBotListe = (message, classname) => {
+            const chatliste = document.createElement("li");
+            chatliste.classList.add("chat", classname);
+            chatliste.innerHTML = `<div class="messaget message_bot">${message}</div>`;
+            return chatliste;
+        };
+    
+        chatbox.appendChild(createChatListe(`${choice} sélectionné`, "ask"));
+        
+        if (choice === 'Cartouches imprimantes') {
+                const searchConsumable = new SearchConsumable(this.args.chatbox, this.args.chatInput, this.args.btnreturn, this.args.chatSendBtn);
+                searchConsumable.handleCartoucheChoice();
+            } else if (choice === 'Clavier' || choice === 'Souris') {
+            chatbox.appendChild(createBotListe('Merci de confirmer votre demande.', "respond"));
+            this.description = choice;
+            if(choice==='Clavier'){
+                this.title="Clavier";
+            }
+            else{
+                this.title="Souris";
+                }
+            const respondChoice = document.createElement("li");
+            respondChoice.classList.add("respond_sub");
+            respondChoice.innerHTML = `
+                <button id="confirmer" class="chat_send">Confirmer</button>
+                <button id="annuler" class="chat_send">Annuler</button>
+            `;
+            chatbox.appendChild(respondChoice);
+    
+            // Attach event listeners
+            document.getElementById('confirmer')?.addEventListener('click', () => this.handleConfirmation('Confirmer'));
+            document.getElementById('annuler')?.addEventListener('click', () => this.handleConfirmation('Annuler'));
+        }
+    }
+     
+    createChatListe(message, classname) {
+        const chatliste = document.createElement("li");
+        chatliste.classList.add("chat", classname);
+        chatliste.innerHTML = `<div class="messaget message_client">${message}</div>`;
+        return chatliste;
+    }
+
+    createBotListe(message, classname) {
+        const chatliste = document.createElement("li");
+        chatliste.classList.add("chat", classname);
+        chatliste.innerHTML = `<div class="messaget message_bot">${message}</div>`;
+        return chatliste;
+    }
+    
+    handleConfirmation(response) {
+        const initialChoice = document.querySelector(".respond_sub");
+        if (initialChoice) initialChoice.style.display = 'none';
+        if (response === 'Confirmer') {
+            this.createTicket(); 
+        } else if (response === 'Annuler') {
+            this.addChoices(); 
+        }
+    }
+    
+    requestInput() {
+        const { chatInput, chatSendBtn } = this.args;
+    
+        chatInput.disabled = false;
+        chatInput.focus();
+    
+        // Set up the event handler
+        this.inputHandler = this.createInputHandler();
+    
+        // Add the event listener
+        chatSendBtn.addEventListener('click', this.inputHandler);
+    }
+    createInputHandler() {
+        return () => {
+            const userInput = this.args.chatInput.value.trim();
+            if (userInput) {
+                this.args.chatInput.value = '';
+                this.handleInput(userInput);
+                
+                // Remove the event listener after handling input
+                this.args.chatSendBtn.removeEventListener('click', this.inputHandler);
+            }
+        };
+    }
+
+    handleInput(userInput) {
+        const { chatbox } = this.args;
+
+        const currentInput = this.inputQueue.shift();
+        if (currentInput) {
+            this.inputTable[currentInput.key] = userInput;
+            this.description += `${currentInput.prompt} ${userInput}. `;
+        }
+
+        chatbox.appendChild(this.createChatListe(userInput, "ask"));
+
+        if (this.inputQueue.length > 0) {
+            this.requestInput();
+        } else {
+            this.createTicket();
+        }
+    }
+
+    createTicket() {
+        const { chatbox } = this.args;
+
+
+        const createChatListe = (message, classname) => {
+            const chatliste = document.createElement("li");
+            chatliste.classList.add("chat", classname);
+            chatliste.innerHTML = `<div class="messaget message_client">${message}</div>`;
+            return chatliste;
+        };
+    
+        const createBotListe = (message, classname) => {
+            const chatliste = document.createElement("li");
+            chatliste.classList.add("chat", classname);
+            chatliste.innerHTML = `<div class="messaget message_bot">${message}</div>`;
+            return chatliste;
+        };
+
+        chatbox.appendChild(createBotListe('Merci pour les informations. Votre ticket est en cours de création...', "respond"));
     
         // Prepare ticket data
         const ticketData = {
-            username: 'glpi', // Replace with actual username from your log
-            password: 'glpi', // Replace with actual password from your log
-            ticket_name: `Demande de materiel`, 
-            ticket_description: `Demande concernant ${materialName}`,
-            type: 2,  // ID for requester
+            ticket_name: `Demande pour  ${this.title}`, 
+            ticket_description: `Demande concernant ${this.description}`,
+            type: 2,  // ID for material request
             category: 1  // Default category ID
         };
+    
         setTimeout(() => {
-            // Code to execute after 5 seconds
-        
-        
-        // Send ticket data to server
-        fetch('create_ticket.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: new URLSearchParams(ticketData)
-        })
-        .then(response => response.text())
-        .then(data => {
-            chatbox.innerHTML="";
-            chatbox.innerHTML = data; 
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    }, 3000);
+            fetch('create_ticket.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(ticketData)
+            })
+            .then(response => response.text())
+            .then(data => {
+                chatbox.innerHTML = ''; 
+                chatbox.appendChild(createBotListe(data, "respond"));
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }, 3000);
     }
+    
+
 }

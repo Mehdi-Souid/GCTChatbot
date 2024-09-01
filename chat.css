@@ -241,3 +241,21 @@ body {
     justify-content: center;
     gap: 10px;
 }
+.respond_sub{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.icon-small {
+    width: 0px;  /* Adjust size as needed */
+    height: 0px; /* Ensure proper aspect ratio */
+    vertical-align: middle; /* Align icon in the middle of the button */
+}
+
+.button_send, .button_return {
+    padding: 5px; /* Adjust padding for the button */
+}
+
+

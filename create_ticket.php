@@ -2,8 +2,8 @@
 session_start();
 
 $app_token = 'L8NOM1XLaMmhAnYdFJIJR6ImnekumcxgtQffFLkM';
-
 $encryption_key = 'GCTChatbot'; 
+
 // Function to decrypt the data
 function decryptData($data, $key) {
     $data = base64_decode($data);
@@ -15,7 +15,7 @@ $username_file = 'login_username.log';
 $password_file = 'login_password.log';
 
 if (!file_exists($username_file) || !file_exists($password_file)) {
-    echo "Error: Username or password file does not exist.";
+    echo "Error: Username or password file does not exist. Please <a href='http://localhost/glpi'>login here</a>.";
     exit();
 }
 
@@ -29,7 +29,7 @@ $encrypted_password = trim($raw_password_content);
 $encrypted_password = str_replace('Password: ', '', $encrypted_password); // Remove the "Password: " prefix
 
 if (empty($encrypted_username) || empty($encrypted_password)) {
-    echo "Vous devez d'abord vous connecter.";
+    echo "Vous devez d'abord vous connecter. Veuillez  <button onclick=\"window.location.href='http://localhost/glpi'\">vous connecter ici</button>";
     exit();
 }
 
@@ -43,7 +43,7 @@ if (isset($_SESSION['last_ticket_time'])) {
     $current_time = time();
 
     if (($current_time - $last_ticket_time) < 10) { // 60 seconds = 1 minute
-        echo "Veuillez attendre une minute avant de créer un autre ticket.";
+        echo "Veuillez attendre avant de créer un autre ticket.";
         exit();
     }
 }
@@ -123,7 +123,7 @@ if (isset($login_response_data['session_token'])) {
         echo "Échec de la récupération des informations de l'utilisateur.";
     }
 } else {
-    echo "Échec de l'authentification. Veuillez vérifier votre nom d'utilisateur et votre mot de passe.";
+    echo "Échec de l'authentification. Veuillez vérifier votre nom d'utilisateur et votre mot de passe. Vous pouvez <a href='http://localhost/glpi'>vous connecter ici</a>.";
 }
 curl_close($ch);
 ?>

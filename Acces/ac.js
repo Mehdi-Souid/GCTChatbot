@@ -308,7 +308,8 @@ class AccessChoice {
         .then(data => {
             // Clear the chatbox and display the server response
             chatbox.innerHTML = '';
-            chatbox.innerHTML = data; 
+            chatbox.appendChild(createBotListe(data, "respond"));
+
         })
         .catch(error => {
             console.error('Error:', error);

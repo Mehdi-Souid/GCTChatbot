@@ -1,8 +1,17 @@
 <?php
 header('Content-Type: application/json');
 
+
 $material_name = $_POST['material_name'];
 $app_token = "L8NOM1XLaMmhAnYdFJIJR6ImnekumcxgtQffFLkM";
+$encryption_key = 'GCTChatbot';
+
+// Function to decrypt the data
+function decryptData($data, $key) {
+    $data = base64_decode($data);
+    list($encrypted_data, $iv) = explode('::', $data, 2); 
+    return openssl_decrypt($encrypted_data, 'AES-256-CBC', $key, 0, $iv);
+}
 
 // Read the username and password from log files
 $username_file = 'login_username.log';
@@ -16,16 +25,14 @@ if (!file_exists($username_file) || !file_exists($password_file)) {
 $raw_username_content = file_get_contents($username_file);
 $raw_password_content = file_get_contents($password_file);
 
-$encrypted_username = trim($raw_username_content);
-$encrypted_username = str_replace('Username: ', '', $encrypted_username); 
-
-$encrypted_password = trim($raw_password_content);
-$encrypted_password = str_replace('Password: ', '', $encrypted_password); 
+$encrypted_username = trim(str_replace('Username: ', '', $raw_username_content)); 
+$encrypted_password = trim(str_replace('Password: ', '', $raw_password_content)); 
 
 if (empty($encrypted_username) || empty($encrypted_password)) {
     echo json_encode(['error' => 'You must login first.']);
     exit();
 }
+
 // Decrypt the username and password
 $username = decryptData($encrypted_username, $encryption_key);
 $password = decryptData($encrypted_password, $encryption_key);
@@ -51,6 +58,12 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, array(
 ));
 
 $login_response = curl_exec($ch);
+if (curl_errno($ch)) {
+    echo json_encode(['error' => 'cURL error: ' . curl_error($ch)]);
+    curl_close($ch);
+    exit();
+}
+
 $login_response_data = json_decode($login_response, true);
 
 if (isset($login_response_data['session_token'])) {
@@ -61,7 +74,8 @@ if (isset($login_response_data['session_token'])) {
     exit();
 }
 
-curl_setopt($ch, CURLOPT_URL, "http://localhost/glpi/apirest.php/ConsumableItem");
+// Fetch cartridges
+curl_setopt($ch, CURLOPT_URL, "http://localhost/glpi/apirest.php/CartridgeItem");
 curl_setopt($ch, CURLOPT_POST, 0); 
 curl_setopt($ch, CURLOPT_HTTPHEADER, array(
     "Content-Type: application/json",
@@ -73,13 +87,14 @@ $response = curl_exec($ch);
 $response_data = json_decode($response, true);
 
 $is_available = false;
+$log_file = 'test.log';
 
 foreach ($response_data as $material) {
-    // Check if the material name
     if (strcasecmp($material['name'], $material_name) === 0) {
         $material_id = $material['id'];
         
-        curl_setopt($ch, CURLOPT_URL, "http://localhost/glpi/apirest.php/ConsumableItem/$material_id/Consumable");
+        // Fetch allocations for the material
+        curl_setopt($ch, CURLOPT_URL, "http://localhost/glpi/apirest.php/CartridgeItem/$material_id/Cartridge");
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
             "Content-Type: application/json",
             "Session-Token: $session_token",
@@ -89,20 +104,24 @@ foreach ($response_data as $material) {
         $allocations_response = curl_exec($ch);
         $allocations_data = json_decode($allocations_response, true);
         
-        $total = $material['stock_target'];
-        $used = 0;
-        
-        // Calculate the number of used items
+        $checked_in = 0;
+        $checked_out = 0;
+
+        // Calculate the number of checked in and checked out items
         foreach ($allocations_data as $allocation) {
-            if (isset($allocation['date_out'])) {
-                $used++;
+            if (isset($allocation['date_in']) && !empty($allocation['date_in'])) {
+                $checked_in++;
+            }
+            if (isset($allocation['date_use']) && !empty($allocation['date_use'])) {
+                $checked_out++;
             }
         }
 
-        $unused = $total - $used;
-        if ($unused > 0) {
+        $available = $checked_in - $checked_out;
+        if ($available > 0) {
             $is_available = true;
         }
+
         break;
     }
 }
@@ -110,6 +129,7 @@ foreach ($response_data as $material) {
 echo json_encode([
     'available' => $is_available,
 ]);
+
 
 curl_close($ch);
 ?>

@@ -82,8 +82,11 @@ class ConfigurationChoice {
 
     handleIVARA() {
         const { chatbox } = this.args;
-
+    
         this.currentState = 'sub'; // Switch to sub-state
+    
+        const initialChoice = document.querySelector(".respond_choice");
+        if (initialChoice) initialChoice.style.display = 'none';
 
         const createChatListe = (message, classname) => {
             const chatliste = document.createElement("li");
@@ -98,9 +101,9 @@ class ConfigurationChoice {
             return chatliste;
         };
         chatbox.appendChild(createChatListe('IVARA', "ask"));
-
+    
         chatbox.appendChild(createBotListe('Quel problème avec iVARA?', "respond"));
-
+    
         const respondChoice = document.createElement("li");
         respondChoice.classList.add("respond_choice");
         respondChoice.innerHTML = `
@@ -108,97 +111,64 @@ class ConfigurationChoice {
             <button id="ivara_print" class="chat_send">Impression Ivara</button>
         `;
         chatbox.appendChild(respondChoice);
-
-        document.getElementById('ivara_start').addEventListener('click', () => this.handleChoice('problème démarrage'));
-        document.getElementById('ivara_print').addEventListener('click', () => this.handleChoice('impression ivara'));
-        const respond = document.querySelector(".respond_choice");
-        if (respond) respond.style.display = 'none'; // Hide the sub-choice buttons
+    
+        // Get all buttons within the respond_choice container
+        const buttons = respondChoice.querySelectorAll('button');
+    
+        // Add event listeners to each button
+        buttons.forEach(button => {
+            button.addEventListener('click', (event) => {
+                this.handleChoice(event.target.textContent);
+                
+                // Hide all buttons
+                buttons.forEach(btn => btn.style.display = 'none');
+            });
+        });
     }
-handleChoice(choice) {
-        const { chatbox, chatInput, chatsendbtn } = this.args;
-
-        const createChatListe = (message, classname) => {
-            const chatliste = document.createElement("li");
-            chatliste.classList.add("chat", classname);
-            chatliste.innerHTML = `<div class="messaget message_client">${message}</div>`;
-            return chatliste;
-        };
-
-        const createBotListe = (message, classname) => {
-            const chatliste = document.createElement("li");
-            chatliste.classList.add("chat", classname);
-            chatliste.innerHTML = `<div class="messaget message_bot">${message}</div>`;
-            return chatliste;
-        };
-
-        chatbox.appendChild(createChatListe(choice, "ask"));
-
-        let detailsMessage;
-        if (choice === 'problème démarrage') {
-            detailsMessage = "merci d'indiquer l'adresse ip de la machine où vous ne pourriez pas l'accéder a si vous disposez déjà d'un compte ivara opérationnel.";
-        } else if (choice === 'impression ivara') {
-            detailsMessage = "merci d'indiquer l'adresse ip de la machine où vous ne pourriez pas assurer l'impression ivara.";
-        } else if (choice === 'SI') {
-            detailsMessage = "merci de préciser l'erreur affichée ainsi que l'adresse IP au sein d'un ticket.";
-        } else if (choice === 'SI Web') {
-            detailsMessage = "merci de préciser l'erreur affichée ainsi que l'adresse IP au sein d'un ticket.";
-        }
-        
-        setTimeout(() => {
-            chatbox.appendChild(createBotListe(`Vous avez choisi ${choice}. ${detailsMessage}`, "respond"));
-
-            chatInput.disabled = false;
-            chatsendbtn.style.display = 'inline-block';
-
-            // Handle ticket creation
-            chatsendbtn.addEventListener('click', () => this.createTicket(choice, chatInput.value));
-        }, 600);
-        const respond = document.querySelector(".respond_choice");
-        if (respond) respond.style.display = 'none'; // Hide the sub-choice buttons
-    }
+    
     handleChoice(choice) {
         const { chatbox, chatInput, chatsendbtn } = this.args;
-
+        const initialChoice = document.querySelector(".respond_choice");
+        if (initialChoice) initialChoice.style.display = 'none';
         const createChatListe = (message, classname) => {
             const chatliste = document.createElement("li");
             chatliste.classList.add("chat", classname);
             chatliste.innerHTML = `<div class="messaget message_client">${message}</div>`;
             return chatliste;
         };
-
+    
         const createBotListe = (message, classname) => {
             const chatliste = document.createElement("li");
             chatliste.classList.add("chat", classname);
             chatliste.innerHTML = `<div class="messaget message_bot">${message}</div>`;
             return chatliste;
         };
-
+    
         chatbox.appendChild(createChatListe(choice, "ask"));
-
+    
         let detailsMessage;
-        if (choice === 'problème démarrage') {
+        if (choice === 'Problème démarrage') {
             detailsMessage = "merci d'indiquer l'adresse ip de la machine où vous ne pourriez pas l'accéder a si vous disposez déjà d'un compte ivara opérationnel.";
-        } else if (choice === 'impression ivara') {
+        } else if (choice === 'Impression Ivara') {
             detailsMessage = "merci d'indiquer l'adresse ip de la machine où vous ne pourriez pas assurer l'impression ivara.";
         } else if (choice === 'SI') {
-            detailsMessage = "merci de préciser l'erreur affichée ainsi que l'adresse .";
+            detailsMessage = "merci de préciser l'erreur affichée ainsi que l'adresse IP .";
         } else if (choice === 'SI Web') {
-            detailsMessage = "merci de préciser l'erreur affichée ainsi que l'adresse .";
+            detailsMessage = "merci de préciser l'erreur affichée ainsi que l'adresse IP .";
         }
-        const respond = document.querySelector(".respond_choice");
-        if (respond) respond.style.display = 'none'; 
-        setTimeout(() => {
-            chatbox.appendChild(createBotListe(`Vous avez choisi ${choice}. ${detailsMessage}`, "respond"));
-
-            chatInput.disabled = false;
-            chatsendbtn.style.display = 'inline-block';
-
-            chatsendbtn.addEventListener('click', () => this.createTicket(choice, chatInput.value));
-        }, 600);
-
+        
+        chatbox.appendChild(createBotListe(`Vous avez choisi ${choice}. ${detailsMessage}`, "respond"));
+    
+        chatInput.disabled = false;
+        chatsendbtn.style.display = 'inline-block';
+    
+        // Handle ticket creation
+        chatsendbtn.addEventListener('click', () => this.createTicket(choice, chatInput.value));
     }
+    
 
     createTicket(issueType, description) {
+        
         const { chatbox,chatInput } = this.args;
         chatbox.innerHTML="";
         chatInput.value = ''; 
@@ -235,8 +205,7 @@ handleChoice(choice) {
         .then(response => response.text())
         .then(data => {
             chatbox.innerHTML="";
-            chatbox.innerHTML = data; 
-
+            chatbox.appendChild(createBotListe(data, "respond"));
         })
         .catch(error => {
             console.error('Error:', error);

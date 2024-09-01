@@ -15,7 +15,8 @@ class AutoRespond {
         btnreturn.style.display = 'block';
         chatInput.disabled = false;
         
-
+        chatsendbtn.removeEventListener('click', this.handleSendClick);
+        btnreturn.removeEventListener('click', this.handleReturnClick);
         this.addMainChoices();
 
         this.args.chatbox.addEventListener('click', this.handleChat.bind(this));
