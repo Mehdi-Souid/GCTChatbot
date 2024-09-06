@@ -40,32 +40,15 @@
 /** @var array $CFG_GLPI */
 global $CFG_GLPI;
 
-
 $SECURITY_STRATEGY = 'no_check';
 
 include('../inc/includes.php');
 
-
-//changes from here
-
-// Send a request to process_logout.php to clear the logs
-$options = [
-    'http' => [
-        'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
-        'method'  => 'POST',
-        'content' => http_build_query(['logout' => 'true']),
-    ],
-];
-
-$context = stream_context_create($options);
-$result = file_get_contents('http://localhost/Chatbot_project/logout.php', false, $context);
-
-if ($result === FALSE) {
-    // Handle error
-    echo 'Error sending data to process_logout.php';
+// Remove session token cookie
+if (isset($_COOKIE['session_token'])) {
+    setcookie('session_token', '', time() - 3600, '/'); // Set expiration to one hour ago
+    unset($_COOKIE['session_token']); // Clear the $_COOKIE superglobal
 }
-//to here
-
 
 if (
     $CFG_GLPI["ssovariables_id"] > 0
