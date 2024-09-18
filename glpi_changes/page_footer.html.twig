@@ -1,0 +1,89 @@
+{#
+   # ---------------------------------------------------------------------
+   #
+   # GLPI - Gestionnaire Libre de Parc Informatique
+   #
+   # http://glpi-project.org
+   #
+   # @copyright 2015-2024 Teclib' and contributors.
+   # @copyright 2003-2014 by the INDEPNET Development Team.
+   # @licence   https://www.gnu.org/licenses/gpl-3.0.html
+   #
+   # ---------------------------------------------------------------------
+   #
+   # LICENSE
+   #
+   # This file is part of GLPI.
+   #
+   # This program is free software: you can redistribute it and/or modify
+   # it under the terms of the GNU General Public License as published by
+   # the Free Software Foundation, either version 3 of the License, or
+   # (at your option) any later version.
+   #
+   # This program is distributed in the hope that it will be useful,
+   # but WITHOUT ANY WARRANTY; without even the implied warranty of
+   # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   # GNU General Public License for more details.
+   #
+   # You should have received a copy of the GNU General Public License
+   # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+   #
+   # ---------------------------------------------------------------------
+   #}
+</main> {# #page #}
+</div> {# .page-body #}
+</div> {# .page-wrapper #}
+</div> {# .page #}
+
+<div class="floating-buttons d-inline-flex">
+    <span class="btn btn-secondary d-none me-1" id="backtotop">
+        <i class="fas fa-arrow-up" title="{{ __('Back to top of the page') }}">
+            <span class="visually-hidden">{{ __('Top of the page') }}</span>
+        </i>
+    </span>
+</div>
+<!-- 1ère partie ajoutée-->
+
+<!-- Bouton pour le chatbot en bas à droite -->
+<div id="chatbot-container" style="position: fixed; bottom: 10px; right: 5px; z-index: 999;">
+    <button id="chatbot-btn" class="btn btn-primary">
+        <i class="fas fa-comments"></i> Chatbot
+    </button>
+
+    <!-- Contenu du chatbot (caché par défaut) -->
+<div id="chatbot-box" style="display: none; background-color: white; border: 1px solid #ccc; padding: 5px; border-radius: 8px; width: 360px; height: 470px;">
+    <iframe src="http://localhost/Chatbot_Project/index.html" style="width: 100%; height: 100%; border: none;"></iframe>
+</div>
+</div>
+<!-- Fin de la 1ère partie ajoutée-->
+
+{% if config('maintenance_mode') %}
+    <div id="maintenance-float">
+        <a href="{{ path('front/config.form.php?forcetab=Config$5') }}">GLPI MAINTENANCE MODE</a>
+    </div>
+{% endif %}
+
+{% for js_file in js_files %}
+    <script type="text/javascript" src="{{ js_path(js_file.path, js_file.options ?? []) }}"></script>
+{% endfor %}
+
+{% for js_file in js_modules %}
+    <script type="module" src="{{ js_path(js_file.path, js_file.options ?? []) }}"></script>
+{% endfor %}
+
+<!-- 2ème partie ajoutée -->
+<!-- Script JavaScript pour gérer l'affichage du chatbot -->
+<script type="text/javascript">
+    document.getElementById('chatbot-btn').addEventListener('click', function() {
+        var chatbotBox = document.getElementById('chatbot-box');
+        if (chatbotBox.style.display === 'none') {
+            chatbotBox.style.display = 'block';
+        } else {
+            chatbotBox.style.display = 'none';
+        }
+    });
+</script>
+<!-- Fin de la 2ème partie ajoutée -->
+
+</body>
+</html>
