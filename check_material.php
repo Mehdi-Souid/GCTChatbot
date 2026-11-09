@@ -8,7 +8,7 @@ if (!isset($_COOKIE['session_token'])) {
 }
 
 $session_token = $_COOKIE['session_token']; // Retrieve session token from cookie
-$app_token = "L8NOM1XLaMmhAnYdFJIJR6ImnekumcxgtQffFLkM";
+$app_token = getenv('GLPI_APP_TOKEN'); // Set GLPI_APP_TOKEN in the web server environment
 
 // Get the material name from POST data
 $material_name = $_POST['material_name'];

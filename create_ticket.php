@@ -8,7 +8,7 @@ if (!isset($_COOKIE['session_token'])) {
 }
 
 $session_token = $_COOKIE['session_token']; // Retrieve session token from cookie
-$app_token = 'L8NOM1XLaMmhAnYdFJIJR6ImnekumcxgtQffFLkM'; // Replace with your actual app token
+$app_token = getenv('GLPI_APP_TOKEN'); // Set GLPI_APP_TOKEN in the web server environment
 
 // Check the timestamp of the last ticket creation
 if (isset($_SESSION['last_ticket_time'])) {

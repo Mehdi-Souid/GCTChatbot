@@ -93,7 +93,7 @@ if (!isset($_COOKIE['session_token'])) {
         exit();
     }
 
-    $app_token = 'L8NOM1XLaMmhAnYdFJIJR6ImnekumcxgtQffFLkM'; // Replace with your actual app token
+    $app_token = getenv('GLPI_APP_TOKEN'); // Set GLPI_APP_TOKEN in the web server environment
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, "http://localhost/glpi/apirest.php/initSession/");
